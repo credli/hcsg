@@ -22,7 +22,7 @@ var Funcs template.FuncMap = map[string]interface{}{
 	"AppName": func() string {
 		return settings.AppName
 	},
-	"AppSubUrl": func() string {
+	"AppSubURL": func() string {
 		return settings.AppSubURL
 	},
 	"AppVer": func() string {

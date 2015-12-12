@@ -34,3 +34,9 @@ hcsg.sublime-project
 hcsg.sublime-workspace
 .tags*
 release
+
+# html and javascript
+node_modules
+bower_components
+test
+tests

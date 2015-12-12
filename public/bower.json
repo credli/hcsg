@@ -1,0 +1,24 @@
+{
+  "name": "HC Source Guide",
+  "authors": [
+    "Nicholas Credli <nicholas.credli@gmail.com>"
+  ],
+  "description": "Source guide for HC products",
+  "main": "",
+  "moduleType": [
+    "amd"
+  ],
+  "license": "Proprietary",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "~3.3.6"
+  }
+}
