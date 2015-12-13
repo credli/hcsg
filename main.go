@@ -65,7 +65,7 @@ func main() {
 
 func runWeb(ctx *cli.Context) {
 	routers.GlobalInit()
-	
+
 	if ctx.IsSet("config") {
 		settings.CustomConf = ctx.String("config")
 	}
@@ -96,7 +96,6 @@ func runWeb(ctx *cli.Context) {
 		m.Post("/login", bindIgnErr(auth.LoginForm{}), routers.LoginPost)
 		m.Get("/logout", routers.Logout)
 	})
-
 	m.Get("/robots.txt", func(ctx *middleware.Context) {
 		if settings.HasRobotsTxt {
 			ctx.ServeFileContent(path.Join(settings.CustomPath, "robots.txt"))
@@ -104,6 +103,8 @@ func runWeb(ctx *cli.Context) {
 			ctx.Error(404)
 		}
 	})
+
+	m.Get("/catalogs", routers.CatalogList)
 
 	m.NotFound(routers.NotFound)
 

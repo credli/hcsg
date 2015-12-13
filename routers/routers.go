@@ -15,6 +15,9 @@ import (
 const (
 	tmplHome  = "home"
 	tmplLogin = "login"
+
+	//Catalogs
+	tmplCatalogList = "catalogs/list"
 )
 
 type LoginForm struct {
@@ -28,7 +31,7 @@ func NewServices() {
 
 func GlobalInit() {
 	settings.NewContext()
-	
+
 	log.Printf("Custom path: %s\n", settings.CustomPath)
 	log.Printf("Log path: %s\n", settings.LogRootPath)
 
@@ -87,6 +90,10 @@ func LoginPost(ctx *middleware.Context, form auth.LoginForm) {
 func Logout(ctx *middleware.Context) {
 	ctx.SetCookie(settings.CookieUserName, "", -1, "/")
 	ctx.Redirect(settings.AppSubURL)
+}
+
+func CatalogList(ctx *middleware.Context) {
+	ctx.HTML(200, tmplCatalogList)
 }
 
 func NotFound(ctx *middleware.Context) {
