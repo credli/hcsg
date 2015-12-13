@@ -20,6 +20,22 @@ func (e ErrProductNotExist) Error() string {
 	return fmt.Sprintf("Product doesn't exist [ID = %s, Name = %s]", e.ID, e.Name)
 }
 
+// Catalog error
+
+type ErrCatalogNotExist struct {
+	ID   string
+	Name string
+}
+
+func IsErrCatalogNotExist(err error) bool {
+	_, ok := err.(ErrCatalogNotExist)
+	return ok
+}
+
+func (e ErrCatalogNotExist) Error() string {
+	return fmt.Sprintf("Catalog doesn't exist [ID = %s, Name = %s]", e.ID, e.Name)
+}
+
 // RawMaterial error
 
 type ErrRawMaterialNotExist struct {
