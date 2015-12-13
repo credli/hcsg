@@ -52,6 +52,7 @@ func GlobalInit() {
 }
 
 func Home(ctx *middleware.Context) {
+	ctx.Data["PageIsHome"] = true
 	uname := ctx.GetCookie("uname")
 	if len(uname) != 0 {
 		ctx.Redirect("/login", 302)
@@ -74,9 +75,9 @@ func Login(ctx *middleware.Context) {
 			ctx.SetCookie("redirect_to", "", -1, "/")
 			ctx.Redirect(redirectTo)
 			return
-		} else {
-			ctx.Redirect("/")
 		}
+		ctx.Redirect("/")
+		return
 	}
 
 	ctx.HTML(200, tmplLogin)
@@ -93,6 +94,7 @@ func Logout(ctx *middleware.Context) {
 }
 
 func CatalogList(ctx *middleware.Context) {
+	ctx.Data["PageIsCatalogs"] = true
 	ctx.HTML(200, tmplCatalogList)
 }
 
