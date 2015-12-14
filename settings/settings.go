@@ -49,6 +49,7 @@ var (
 	SecretKey          string
 	CookieUserName     string
 	CookieRememberName string
+	LoginRememberDays  int
 
 	// Database settings
 	UseSQLite3 bool
@@ -172,6 +173,7 @@ func NewContext() {
 	SecretKey = sec.Key("SECRET_KEY").String()
 	CookieUserName = sec.Key("COOKIE_USER_NAME").MustString("hcsg_user")
 	CookieRememberName = sec.Key("COOKIE_REMEMBER_NAME").MustString("hcsg_remember")
+	LoginRememberDays = sec.Key("LOGIN_REMEMBER_DAYS").MustInt(1)
 
 	HasRobotsTxt = com.IsFile(path.Join(CustomPath, "robots.txt"))
 

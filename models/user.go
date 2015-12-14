@@ -1,10 +1,10 @@
 package models
 
 import (
-	"time"
-	"log"
 	"fmt"
-	
+	"log"
+	"time"
+
 	"github.com/credli/hcsg/base"
 )
 
@@ -25,17 +25,10 @@ type User struct {
 
 // EncodePasswd encodes password to safe format.
 func (u *User) EncodePasswd() {
-	var newPasswd string
-	switch u.PasswordFormat {
-	case "0":
-		newPasswd = base.EncodeMD5(u.Password)
-		
-	case "1":
-		newPasswd = base.EncodeMD5(u.PasswordSalt + u.Password)
-	default:
-		newPasswd = u.Password
+	if u.PasswordFormat == "0" {
+		newPasswd := base.EncodeMD5(u.PasswordSalt + u.Password)
+		u.Password = fmt.Sprintf("%x", newPasswd)
 	}
-	u.Password = fmt.Sprintf("%x", newPasswd)
 }
 
 func (u *User) ValidatePassword(passwd string) bool {
@@ -117,11 +110,11 @@ func UserSignIn(uname, passwd string) (user *User, err error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	if user.ValidatePassword(passwd) {
 		log.Printf("Failed to login user '%s', password incorrect.\n", uname)
 		return user, nil
 	}
-	
-	return nil, ErrUserNotExist{user.UserID, ""} 
+
+	return nil, ErrUserNotExist{user.UserID, ""}
 }

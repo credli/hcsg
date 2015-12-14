@@ -1,0 +1,28 @@
+{{template "base/header" .}}
+
+<div class="row">
+	<div class="col-md-3 hidden-xs"></div>
+	<div class="col-md-6 col-xs-12">
+		{{template "base/alert" .}}
+		<form method="post">
+			<h3>Login to HCSG</small></h3>
+			<div class="form-group">
+				<label for="username" class="control-label">Username</label>
+				<input type="text" class="form-control" id="username" name="username" placeholder="Username">
+			</div>
+			<div class="form-group">
+				<label for="password" class="control-label">Password</label>
+				<input type="password" class="form-control" id="password" name="password" placeholder="Password">
+			</div>
+			<div class="checkbox">
+				<label>
+					<input type="checkbox" name="remember-me"> Remember me on this device
+				</label>
+			</div>
+			<button type="submit" class="btn btn-success pull-right">Login</button>
+		</form>
+	</div>
+	<div class="col-md-3 hidden-xs"></div>
+</div>	
+
+{{template "base/footer" .}}

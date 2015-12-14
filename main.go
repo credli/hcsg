@@ -82,19 +82,19 @@ func runWeb(ctx *cli.Context) {
 
 	m := newMacaron()
 
-	//reqSignIn := middleware.Toggle(&middleware.ToggleOptions{SignInRequired: true})
-	ignSignIn := middleware.Toggle(&middleware.ToggleOptions{SignInRequired: false})
+	reqSignIn := middleware.Toggle(&middleware.ToggleOptions{SignInRequired: true})
+	//ignSignIn := middleware.Toggle(&middleware.ToggleOptions{SignInRequired: false})
 	//ignSignInAndCsrf := middleware.Toggle(&middleware.ToggleOptions{DisableCsrf: true, SignInRequired: false})
-	//adminReq := middleware.Toggle(&middleware.ToggleOptions{SignInRequired: true, AdminRequired: true})
+	adminReq := middleware.Toggle(&middleware.ToggleOptions{SignInRequired: true, AdminRequired: true})
 
 	//bind := binding.Bind
 	bindIgnErr := binding.BindIgnErr
 
-	m.Get("/", ignSignIn, routers.Home)
+	m.Get("/", routers.Home)
 	m.Group("/user", func() {
 		m.Get("/login", routers.Login)
 		m.Post("/login", bindIgnErr(auth.LoginForm{}), routers.LoginPost)
-		m.Get("/logout", routers.Logout)
+		m.Post("/logout", reqSignIn, routers.LogoutPost)
 	})
 	m.Get("/robots.txt", func(ctx *middleware.Context) {
 		if settings.HasRobotsTxt {
@@ -104,7 +104,7 @@ func runWeb(ctx *cli.Context) {
 		}
 	})
 
-	m.Get("/catalogs", routers.CatalogList)
+	m.Get("/catalogs", adminReq, routers.CatalogList)
 
 	m.NotFound(routers.NotFound)
 

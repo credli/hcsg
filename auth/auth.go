@@ -1,24 +1,57 @@
 package auth
 
 import (
+	"log"
 	"reflect"
 	"strings"
-	"log"
 
-	"github.com/credli/com"
 	"github.com/go-macaron/binding"
 	"github.com/go-macaron/session"
 	"gopkg.in/macaron.v1"
-	
+
+	"github.com/credli/com"
 	"github.com/credli/hcsg/base"
 	"github.com/credli/hcsg/models"
 )
+
+func IsAPIPath(url string) bool {
+	return strings.HasPrefix(url, "/api/")
+}
 
 func SignedInID(ctx *macaron.Context, sess session.Store) string {
 	if !models.Connected {
 		return ""
 	}
-	
+
+	if IsAPIPath(ctx.Req.URL.Path) {
+		tokenSHA := ctx.Query("token")
+		if len(tokenSHA) == 0 {
+			auHead := ctx.Req.Header.Get("Authorization")
+			if len(auHead) > 0 {
+				auths := strings.Fields(auHead)
+				if len(auths) == 2 && auths[0] == "token" {
+					tokenSHA = auths[1]
+				}
+			}
+		}
+
+		if len(tokenSHA) > 0 {
+			// t, err := models.GetAccessTokenBySHA(tokenSHA)
+			// if err != nil {
+			// 	if models.IsErrAccessTokenNotExist(err) {
+			// 		log.Error(4, "GetAccessTokenBySHA: %v", err)
+			// 	}
+			// 	return 0
+			// }
+			// t.Updated = time.Now()
+			// if err = models.UpdateAccessToekn(t); err != nil {
+			// 	log.Error(4, "UpdateAccessToekn: %v", err)
+			// }
+			// return t.UID
+			return ""
+		}
+	}
+
 	uid := sess.Get("uid")
 	if uid == nil {
 		return ""
@@ -39,15 +72,17 @@ func SignedInUser(ctx *macaron.Context, sess session.Store) (*models.User, bool)
 	if !models.Connected {
 		return nil, false
 	}
-	
+
 	uid := SignedInID(ctx, sess)
-	if uid != "" {
+
+	if uid == "" {
+		// Check if authenticated with basic auth instead.
 		baHead := ctx.Req.Header.Get("Authorization")
 		if len(baHead) > 0 {
 			auths := strings.Fields(baHead)
 			if len(auths) == 2 && auths[0] == "Basic" {
 				uname, passwd, err := base.BasicAuthDecode(auths[1])
-				
+
 				u, err := models.UserSignIn(uname, passwd)
 				if err != nil {
 					if !models.IsErrUserNotExist(err) {
@@ -60,7 +95,7 @@ func SignedInUser(ctx *macaron.Context, sess session.Store) (*models.User, bool)
 		}
 		return nil, false
 	}
-	
+
 	u, err := models.GetUser(uid)
 	if err != nil {
 		log.Printf("GetUser: %v", err)
@@ -197,9 +232,9 @@ func validate(errs binding.Errors, data map[string]interface{}, f Form, l macaro
 }
 
 type LoginForm struct {
-	UserName string `binding:"Required,AlphaDashDot;MaxSize(254)"`
-	Password string `binding:"Required,MaxSize(254)"`
-	Remember bool
+	Username string `form:"username" binding:"Required,AlphaDashDot;MaxSize(254)"`
+	Password string `form:"password" binding:"Required,MaxSize(254)"`
+	Remember bool   `form:"remember-me"`
 }
 
 func (f *LoginForm) Validate(ctx *macaron.Context, errs binding.Errors) binding.Errors {
