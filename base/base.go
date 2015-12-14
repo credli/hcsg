@@ -1,20 +1,25 @@
 package base
 
 import (
-	"strings"
 	"crypto/md5"
-	"crypto/sha1"
 	"crypto/rand"
-	"encoding/hex"
+	"crypto/sha1"
 	"encoding/base64"
-	"html/template"
-	"regexp"
+	"encoding/hex"
 	"fmt"
+	"html/template"
 	"math"
+	"regexp"
+	"strings"
 	"time"
+
 	"github.com/credli/com"
-	"github.com/microcosm-cc/bluemonday"
 	"github.com/credli/hcsg/settings"
+	"github.com/microcosm-cc/bluemonday"
+)
+
+type (
+	TplName string
 )
 
 var Sanitizer = bluemonday.UGCPolicy().AllowAttrs("class").Matching(regexp.MustCompile(`[\p{L}\p{N}\s\-_',:\[\]!\./\\\(\)&]*`)).OnElements("code")
@@ -172,7 +177,7 @@ func timeSince(then time.Time) string {
 	case diff < 2*Minute:
 		return fmt.Sprintf("1 minute %s", lbl)
 	case diff < 1*Hour:
-		return fmt.Sprintf("%d minutes %s", diff/Minute, lbl) 
+		return fmt.Sprintf("%d minutes %s", diff/Minute, lbl)
 
 	case diff < 2*Hour:
 		return fmt.Sprintf("1 hour %s", lbl)

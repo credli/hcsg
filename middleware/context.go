@@ -2,16 +2,18 @@ package middleware
 
 import (
 	"fmt"
-	"gopkg.in/macaron.v1"
 	"html/template"
 	"log"
-	"time"
 	"strings"
+	"time"
+
+	"gopkg.in/macaron.v1"
 
 	"github.com/go-macaron/csrf"
 	"github.com/go-macaron/session"
 
 	"github.com/credli/hcsg/auth"
+	"github.com/credli/hcsg/base"
 	"github.com/credli/hcsg/models"
 	"github.com/credli/hcsg/settings"
 )
@@ -40,7 +42,7 @@ func (ctx *Context) Handle(status int, title string, err error) {
 	case 500:
 		ctx.Data["Title"] = "Internal Server Error"
 	}
-	ctx.HTML(status, fmt.Sprintf("status/%d", status))
+	ctx.HTML(status, base.TplName(fmt.Sprintf("status/%d", status)))
 }
 
 func (ctx *Context) HandleText(status int, title string) {
@@ -69,8 +71,18 @@ func (ctx *Context) GetErrorMsg() string {
 	return ctx.Data["ErrorMsg"].(string)
 }
 
-func (ctx *Context) HTML(status int, name string, data ...interface{}) {
-	ctx.Context.HTML(status, name, data...)
+// RenderWithErr used for page has form validation but need to prompt error to users.
+func (ctx *Context) RenderWithErr(msg string, tpl base.TplName, form interface{}) {
+	if form != nil {
+		auth.AssignForm(form, ctx.Data)
+	}
+	ctx.Flash.ErrorMsg = msg
+	ctx.Data["Flash"] = ctx.Flash
+	ctx.HTML(200, tpl)
+}
+
+func (ctx *Context) HTML(status int, name base.TplName, data ...interface{}) {
+	ctx.Context.HTML(status, string(name), data...)
 }
 
 func Contexter() macaron.Handler {
@@ -83,12 +95,12 @@ func Contexter() macaron.Handler {
 		}
 
 		ctx.Data["Link"] = settings.AppSubURL + strings.TrimSuffix(ctx.Req.URL.Path, "/")
-		
+
 		ctx.Data["PageStartTime"] = time.Now()
-		
+
 		// Get user from session if logged in
 		ctx.User, _ = auth.SignedInUser(ctx.Context, ctx.Session)
-		
+
 		if ctx.User != nil {
 			ctx.SignedIn = true
 			ctx.Data["SignedIn"] = ctx.SignedIn
@@ -100,7 +112,7 @@ func Contexter() macaron.Handler {
 			ctx.Data["SignedUserID"] = ""
 			ctx.Data["SignedUserName"] = ""
 		}
-		
+
 		// If request sends files, parse them here otherwise the Query() can't be parsed and the CsrfToken will be invalid.
 		if ctx.Req.Method == "POST" && strings.Contains(ctx.Req.Header.Get("Content-Type"), "multipart/form-data") {
 			if err := ctx.Req.ParseMultipartForm(settings.AttachmentMaxSize << 20); err != nil && !strings.Contains(err.Error(), "EOF") { // 32MB max size
