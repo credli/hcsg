@@ -33,7 +33,9 @@ docker/docker/init_gogs.sh
 hcsg.sublime-project
 hcsg.sublime-workspace
 .tags*
+debug
 release
+*.debug
 
 # html and javascript
 node_modules
