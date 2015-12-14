@@ -5,6 +5,7 @@
 log/
 custom/
 data/
+bindata/
 bin/
 .vendor/
 *.o
