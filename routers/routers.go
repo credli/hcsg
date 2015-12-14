@@ -5,6 +5,7 @@ import (
 	"net/url"
 
 	"github.com/credli/hcsg/auth"
+	"github.com/credli/hcsg/base"
 	"github.com/credli/hcsg/middleware"
 	"github.com/credli/hcsg/models"
 	"github.com/credli/hcsg/settings"
@@ -14,16 +15,11 @@ import (
 
 const (
 	tmplHome  = "home"
-	tmplLogin = "login"
+	tmplLogin = "user/login"
 
 	//Catalogs
 	tmplCatalogList = "catalogs/list"
 )
-
-type LoginForm struct {
-	Username string `form:"name" binding:"Required"`
-	Password string `form:"password" binding:"Required"`
-}
 
 func NewServices() {
 	settings.NewServices()
@@ -36,6 +32,7 @@ func GlobalInit() {
 	log.Printf("Log path: %s\n", settings.LogRootPath)
 
 	models.LoadConfigs()
+
 	NewServices()
 	if models.EnableSQLite3 {
 		log.Println("SQLite Supported")
@@ -43,6 +40,7 @@ func GlobalInit() {
 	if models.EnableODBC {
 		log.Println("ODBC Supported")
 	}
+
 	switch settings.Cfg.Section("").Key("RUN_MODE").String() {
 	case "prod":
 		macaron.Env = macaron.PROD
@@ -64,6 +62,7 @@ func Home(ctx *middleware.Context) {
 func Login(ctx *middleware.Context) {
 	ctx.Data["Title"] = "Login"
 
+	// Perform an auto-sign in if 'remember me' was selected
 	success, err := middleware.AutoSignIn(ctx)
 	if err != nil {
 		ctx.Handle(500, "AutoSignIn", err)
@@ -72,11 +71,11 @@ func Login(ctx *middleware.Context) {
 
 	if success {
 		if redirectTo, _ := url.QueryUnescape(ctx.GetCookie("redirect_to")); len(redirectTo) > 0 {
-			ctx.SetCookie("redirect_to", "", -1, "/")
+			ctx.SetCookie("redirect_to", "", -1, settings.AppSubURL)
 			ctx.Redirect(redirectTo)
-			return
+		} else {
+			ctx.Redirect(settings.AppSubURL + "/")
 		}
-		ctx.Redirect("/")
 		return
 	}
 
@@ -85,12 +84,51 @@ func Login(ctx *middleware.Context) {
 
 func LoginPost(ctx *middleware.Context, form auth.LoginForm) {
 	ctx.Data["Title"] = "Login"
+	if ctx.HasError() {
+		ctx.HTML(200, tmplLogin)
+		return
+	}
+	log.Printf("form: %s %s %s", form.Username, form.Password, form.Remember)
 
+	u, err := models.UserSignIn(form.Username, form.Password)
+	log.Printf("Logged in: %v (err: %v)", u, err)
+	if err != nil {
+		if models.IsErrUserNotExist(err) {
+			ctx.RenderWithErr("Incorrect username or password, please try again", tmplLogin, &form)
+		} else {
+			ctx.Handle(500, "UserLogin", err)
+		}
+		return
+	}
+
+	if form.Remember {
+		days := 86400 * settings.LoginRememberDays
+		ctx.SetCookie(settings.CookieUserName, u.UserName, days, settings.AppSubURL)
+		// FIXME: should always require PasswordSalt when encoding to cookie, regardless of PasswordFormat
+		if u.PasswordFormat == "0" {
+			ctx.SetSuperSecureCookie(base.EncodeMD5(u.Password), settings.CookieRememberName, u.UserName, settings.AppSubURL)
+		} else if u.PasswordFormat == "1" {
+			ctx.SetSuperSecureCookie(base.EncodeMD5(u.PasswordSalt+u.Password), settings.CookieRememberName, u.UserName, days, settings.AppSubURL)
+		}
+	}
+
+	ctx.Session.Set("uid", u.UserID)
+	ctx.Session.Set("uname", u.UserName)
+	if redirectTo, _ := url.QueryUnescape(ctx.GetCookie("redirect_to")); len(redirectTo) > 0 {
+		ctx.SetCookie("redirect_to", "", -1, settings.AppSubURL)
+		ctx.Redirect(redirectTo)
+		return
+	}
+
+	ctx.Redirect(settings.AppSubURL + "/")
 }
 
-func Logout(ctx *middleware.Context) {
-	ctx.SetCookie(settings.CookieUserName, "", -1, "/")
-	ctx.Redirect(settings.AppSubURL)
+func LogoutPost(ctx *middleware.Context) {
+	ctx.Session.Delete("uid")
+	ctx.Session.Delete("uname")
+	ctx.SetCookie(settings.CookieUserName, "", -1, settings.AppSubURL)
+	ctx.SetCookie(settings.CookieRememberName, "", -1, settings.AppSubURL)
+	ctx.Redirect(settings.AppSubURL + "/")
 }
 
 func CatalogList(ctx *middleware.Context) {

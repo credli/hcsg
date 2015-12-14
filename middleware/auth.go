@@ -49,9 +49,9 @@ func AutoSignIn(ctx *Context) (bool, error) {
 	var hash string
 	switch u.PasswordFormat {
 	case "0":
-		hash, _ = ctx.GetSuperSecureCookie(base.EncodeMD5(u.PasswordSalt+u.Password), settings.CookieRememberName)
-	case "1":
 		hash, _ = ctx.GetSuperSecureCookie(base.EncodeMD5(u.Password), settings.CookieRememberName)
+	case "1":
+		hash, _ = ctx.GetSuperSecureCookie(base.EncodeMD5(u.PasswordSalt+u.Password), settings.CookieRememberName)
 	}
 	if hash != u.UserName {
 		return false, nil
