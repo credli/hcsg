@@ -7,9 +7,6 @@ import (
 	"os"
 	"path"
 
-	_ "github.com/alexbrainman/odbc"
-	_ "github.com/mattn/go-sqlite3"
-
 	"github.com/credli/hcsg/settings"
 )
 
@@ -24,11 +21,11 @@ var (
 )
 
 func GetDb() (*sql.DB, error) {
-	if db != nil {
+	if db != nil && Connected {
 		return db, nil
 	}
 	var err error
-	db, err = getDB()
+	db, err = openDbConnection()
 	if err != nil {
 		log.Panicf("ERROR: Could not initialize database connection: %v", err)
 		return nil, err
@@ -52,25 +49,35 @@ func LoadConfigs() {
 		DbCfg.Passwd = sec.Key("PASSWD").String()
 	}
 	DbCfg.Path = sec.Key("PATH").MustString("data/hcsg.db")
+	openDbConnection() //initialize database on startup
 }
 
-func getDB() (*sql.DB, error) {
+func openDbConnection() (*sql.DB, error) {
 	connStr := ""
 	switch DbCfg.Type {
 	case "sqlite3":
 		if !EnableSQLite3 {
-			return nil, fmt.Errorf("Unknown database type: %s", DbCfg.Type)
+			return nil, fmt.Errorf("SQLite3 is not enabled: %s", DbCfg.Type)
 		}
 		if err := os.MkdirAll(path.Dir(DbCfg.Path), os.ModePerm); err != nil {
 			return nil, fmt.Errorf("Fail to create directories: %v", err)
 		}
 		connStr = "file:" + DbCfg.Path + "?cache=shared&mode=rwc"
 	case "odbc":
+		if !EnableODBC {
+			return nil, fmt.Errorf("ODBC is not enabled: %s", DbCfg.Type)
+		}
 		connStr = fmt.Sprintf("server=%s;user id=%s;password=%s;database=%s", DbCfg.Host, DbCfg.User, DbCfg.Passwd, DbCfg.Name)
 	default:
 		return nil, fmt.Errorf("Unsupported database type: %s", DbCfg.Type)
 	}
-	return sql.Open(DbCfg.Type, connStr)
+	var err error
+	db, err = sql.Open(DbCfg.Type, connStr)
+	if err != nil {
+		return nil, err
+	}
+	Connected = true
+	return db, nil
 }
 
 func Ping() error {
