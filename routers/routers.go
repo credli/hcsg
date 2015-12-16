@@ -37,6 +37,9 @@ func GlobalInit() {
 	if models.EnableODBC {
 		log.Println("ODBC Supported")
 	}
+	if models.EnableMSSQL {
+		log.Println("MSSQL Supported")
+	}
 
 	switch settings.Cfg.Section("").Key("RUN_MODE").String() {
 	case "prod":
