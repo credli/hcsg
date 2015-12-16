@@ -23,6 +23,7 @@ import (
 	"github.com/credli/hcsg/middleware"
 	"github.com/credli/hcsg/models"
 	"github.com/credli/hcsg/routers"
+	"github.com/credli/hcsg/routers/catalogs"
 	"github.com/credli/hcsg/settings"
 	"github.com/credli/hcsg/template"
 )
@@ -104,7 +105,9 @@ func runWeb(ctx *cli.Context) {
 		}
 	})
 
-	m.Get("/catalogs", adminReq, routers.CatalogList)
+	m.Get("/catalogs", adminReq, catalogs.List)
+	m.Get("/catalogs/create", adminReq, catalogs.Create)
+	m.Post("/catalogs/create", adminReq, bindIgnErr(catalogs.CatalogCreateForm{}), catalogs.CreatePost)
 
 	m.NotFound(routers.NotFound)
 

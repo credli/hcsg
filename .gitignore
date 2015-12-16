@@ -5,6 +5,7 @@
 log/
 custom/
 data/
+lib/
 bindata/
 bin/
 .vendor/
@@ -34,6 +35,7 @@ docker/docker/init_gogs.sh
 hcsg.sublime-project
 hcsg.sublime-workspace
 .tags*
+hcsg
 debug
 release
 *.debug

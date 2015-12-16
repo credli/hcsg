@@ -67,6 +67,17 @@ func GetRandomString(n int, alphabets ...byte) string {
 	return string(bytes)
 }
 
+// GenerateUUID generates a random uuid
+func GenerateUUID() (string, error) {
+	b := make([]byte, 16)
+	_, err := rand.Read(b)
+	if err != nil {
+		return "", err
+	}
+	uuid := fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
+	return uuid, nil
+}
+
 // Seconds-based time units
 const (
 	Minute = 60
