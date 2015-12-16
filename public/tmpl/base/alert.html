@@ -1,15 +1,27 @@
 {{if .Flash.ErrorMsg}}
-	<div class="alert alert-danger" role="alert">
-		<p>{{.Flash.ErrorMsg}}</p>
+<div class="row">
+	<div class="col-md-12">
+		<div class="alert alert-danger" role="alert">
+			<p>{{.Flash.ErrorMsg}}</p>
+		</div>
 	</div>
+</div>
 {{end}}
 {{if .Flash.SuccessMsg}}
-	<div class="alert alert-success" role="alert">
-		<p>{{.Flash.SuccessMsg}}</p>
+<div class="row">
+	<div class="col-md-12">
+		<div class="alert alert-success" role="alert">
+			<p>{{.Flash.SuccessMsg}}</p>
+		</div>
 	</div>
+</div>
 {{end}}
 {{if .Flash.InfoMsg}}
-	<div class="alert alert-info" role="alert">
-		<p>{{.Flash.InfoMsg}}</p>
+<div class="row">
+	<div class="col-md-12">
+		<div class="alert alert-info" role="alert">
+			<p>{{.Flash.InfoMsg}}</p>
+		</div>
 	</div>
+</div>
 {{end}}
