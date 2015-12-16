@@ -120,7 +120,7 @@ func LoginPost(ctx *middleware.Context, form auth.LoginForm) {
 	ctx.Redirect(settings.AppSubURL + "/")
 }
 
-func LogoutPost(ctx *middleware.Context) {
+func Logout(ctx *middleware.Context) {
 	ctx.Session.Delete("uid")
 	ctx.Session.Delete("uname")
 	ctx.SetCookie(settings.CookieUserName, "", -1, settings.AppSubURL)

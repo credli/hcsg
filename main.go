@@ -95,7 +95,7 @@ func runWeb(ctx *cli.Context) {
 	m.Group("/user", func() {
 		m.Get("/login", routers.Login)
 		m.Post("/login", bindIgnErr(auth.LoginForm{}), routers.LoginPost)
-		m.Post("/logout", reqSignIn, routers.LogoutPost)
+		m.Any("/logout", reqSignIn, routers.Logout)
 	})
 	m.Get("/robots.txt", func(ctx *middleware.Context) {
 		if settings.HasRobotsTxt {
