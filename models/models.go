@@ -13,11 +13,29 @@ import (
 var (
 	db    *sql.DB
 	DbCfg struct {
-		Type, Host, Name, User, Passwd, Path string
+		Type string
+		// mssql
+		Host   string
+		Name   string
+		User   string
+		Passwd string
+
+		// odbc
+		Driver     string
+		Server     string
+		UID        string
+		Pwd        string
+		Database   string
+		TdsVersion string
+		Port       string
+
+		// sqlite
+		Path string
 	}
 	Connected     bool
 	EnableSQLite3 bool
 	EnableODBC    bool
+	EnableMSSQL   bool
 )
 
 func GetDb() (*sql.DB, error) {
@@ -35,20 +53,33 @@ func GetDb() (*sql.DB, error) {
 
 func LoadConfigs() {
 	sec := settings.Cfg.Section("database")
-	DbCfg.Type = sec.Key("DB_TYPE").String()
+	DbCfg.Type = sec.Key("DB_TYPE").MustString("sqlite3")
 	switch DbCfg.Type {
 	case "sqlite3":
 		settings.UseSQLite3 = true
+
+		DbCfg.Path = sec.Key("PATH").MustString("data/hcsg.db")
+	case "mssql":
+		settings.UseMSSQL = true
+
+		DbCfg.Host = sec.Key("HOST").String()
+		DbCfg.Name = sec.Key("NAME").String()
+		DbCfg.User = sec.Key("USER").String()
+		if len(DbCfg.Passwd) == 0 {
+			DbCfg.Passwd = sec.Key("PASSWD").String()
+		}
 	case "odbc":
 		settings.UseODBC = true
+
+		DbCfg.Driver = sec.Key("DRIVER").String()
+		DbCfg.Server = sec.Key("SERVER").String()
+		DbCfg.Port = sec.Key("PORT").String()
+		DbCfg.UID = sec.Key("UID").String()
+		DbCfg.Pwd = sec.Key("PWD").String()
+		DbCfg.Database = sec.Key("DATABASE").String()
+		DbCfg.TdsVersion = sec.Key("TDS_VERSION").String()
 	}
-	DbCfg.Host = sec.Key("HOST").String()
-	DbCfg.Name = sec.Key("NAME").String()
-	DbCfg.User = sec.Key("USER").String()
-	if len(DbCfg.Passwd) == 0 {
-		DbCfg.Passwd = sec.Key("PASSWD").String()
-	}
-	DbCfg.Path = sec.Key("PATH").MustString("data/hcsg.db")
+
 	openDbConnection() //initialize database on startup
 }
 
@@ -63,14 +94,26 @@ func openDbConnection() (*sql.DB, error) {
 			return nil, fmt.Errorf("Fail to create directories: %v", err)
 		}
 		connStr = "file:" + DbCfg.Path + "?cache=shared&mode=rwc"
+	case "mssql":
+		if !EnableMSSQL {
+			return nil, fmt.Errorf("MSSQL is not enabled: %s", DbCfg.Type)
+		}
+		connStr = fmt.Sprintf("server=%s;user id=%s;password=%s;database=%s",
+			DbCfg.Host, DbCfg.User, DbCfg.Passwd, DbCfg.Name)
 	case "odbc":
 		if !EnableODBC {
 			return nil, fmt.Errorf("ODBC is not enabled: %s", DbCfg.Type)
 		}
-		connStr = fmt.Sprintf("server=%s;user id=%s;password=%s;database=%s", DbCfg.Host, DbCfg.User, DbCfg.Passwd, DbCfg.Name)
+		connStr = fmt.Sprintf("DRIVER=%s;SERVER=%s;UID=%s;PWD=%s;DATABASE=%s;TDS_Version=%s;Port=%s",
+			DbCfg.Driver, DbCfg.Server, DbCfg.UID, DbCfg.Passwd, DbCfg.Database, DbCfg.TdsVersion, DbCfg.Port)
 	default:
 		return nil, fmt.Errorf("Unsupported database type: %s", DbCfg.Type)
 	}
+
+	if !settings.ProdMode {
+		log.Println("Connection String: " + connStr)
+	}
+
 	var err error
 	db, err = sql.Open(DbCfg.Type, connStr)
 	if err != nil {

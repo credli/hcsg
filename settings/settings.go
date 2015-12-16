@@ -54,6 +54,7 @@ var (
 	// Database settings
 	UseSQLite3 bool
 	UseODBC    bool
+	UseMSSQL   bool
 
 	Cfg          *ini.File
 	AppPath      string
