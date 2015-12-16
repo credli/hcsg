@@ -14,11 +14,8 @@ import (
 )
 
 const (
-	tmplHome  = "home"
-	tmplLogin = "user/login"
-
-	//Catalogs
-	tmplCatalogList = "catalogs/list"
+	tmplHome  base.TplName = "home"
+	tmplLogin base.TplName = "user/login"
 )
 
 func NewServices() {
@@ -39,6 +36,9 @@ func GlobalInit() {
 	}
 	if models.EnableODBC {
 		log.Println("ODBC Supported")
+	}
+	if models.EnableMSSQL {
+		log.Println("MSSQL Supported")
 	}
 
 	switch settings.Cfg.Section("").Key("RUN_MODE").String() {
@@ -83,9 +83,9 @@ func Login(ctx *middleware.Context) {
 }
 
 func LoginPost(ctx *middleware.Context, form auth.LoginForm) {
-	ctx.Data["Title"] = "Login"
 	if ctx.HasError() {
 		ctx.HTML(200, tmplLogin)
+		ctx.RenderWithErr("", tmplLogin, form)
 		return
 	}
 	log.Printf("form: %s %s %s", form.Username, form.Password, form.Remember)
@@ -129,11 +129,6 @@ func LogoutPost(ctx *middleware.Context) {
 	ctx.SetCookie(settings.CookieUserName, "", -1, settings.AppSubURL)
 	ctx.SetCookie(settings.CookieRememberName, "", -1, settings.AppSubURL)
 	ctx.Redirect(settings.AppSubURL + "/")
-}
-
-func CatalogList(ctx *middleware.Context) {
-	ctx.Data["PageIsCatalogs"] = true
-	ctx.HTML(200, tmplCatalogList)
 }
 
 func NotFound(ctx *middleware.Context) {

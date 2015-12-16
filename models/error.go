@@ -1,8 +1,39 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 )
+
+var (
+	ErrNameEmpty = errors.New("Name provided is empty")
+)
+
+type ErrNameReserved struct {
+	Name string
+}
+
+func IsErrNameReserved(err error) bool {
+	_, ok := err.(ErrNameReserved)
+	return ok
+}
+
+func (e ErrNameReserved) Error() string {
+	return fmt.Sprintf("Name '%s' is reserved by the system and cannot be used", e.Name)
+}
+
+type ErrNamePatternNotAllowed struct {
+	Pattern string
+}
+
+func IsErrNamePatternNotAllowed(err error) bool {
+	_, ok := err.(ErrNamePatternNotAllowed)
+	return ok
+}
+
+func (e ErrNamePatternNotAllowed) Error() string {
+	return fmt.Sprintf("Name pattern '%s' is not allowed", e.Pattern)
+}
 
 // Product error
 
@@ -34,6 +65,20 @@ func IsErrCatalogNotExist(err error) bool {
 
 func (e ErrCatalogNotExist) Error() string {
 	return fmt.Sprintf("Catalog doesn't exist [ID = %s, Name = %s]", e.ID, e.Name)
+}
+
+type ErrCatalogAlreadyExist struct {
+	ID   string
+	Name string
+}
+
+func IsErrCatalogAlreadyExist(err error) bool {
+	_, ok := err.(ErrCatalogAlreadyExist)
+	return ok
+}
+
+func (e ErrCatalogAlreadyExist) Error() string {
+	return fmt.Sprintf("Catalog already exists [ID = %s, Name = %s]", e.ID, e.Name)
 }
 
 // RawMaterial error
