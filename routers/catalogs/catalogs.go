@@ -41,7 +41,7 @@ func Create(ctx *middleware.Context) {
 
 func CreatePost(ctx *middleware.Context, form CatalogCreateForm) {
 	if ctx.HasError() {
-		ctx.RenderWithErr("Something is wrong, check your form entry then try again", tmplCatalogCreate, form)
+		ctx.RenderWithErr("Something is wrong, check your entry then try again", tmplCatalogCreate, form)
 		return
 	}
 

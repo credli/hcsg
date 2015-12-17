@@ -3,6 +3,7 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="{{AppSubURL}}/public/bower_components/bootstrap/dist/css/bootstrap.min.css" />
 	<link rel="stylesheet" href="{{AppSubURL}}/public/bower_components/bootstrap/dist/css/bootstrap-theme.min.css" />
 	<link rel="stylesheet" href="{{AppSubURL}}/public/css/style.css" />
@@ -20,7 +21,7 @@
 					</button>
 					<a class="navbar-brand" href="{{AppSubURL}}/">HC Source Guide</a>
 				</div>
-				
+
 				<!-- Collect the nav links, forms, and other content for toggling -->
 				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 					<ul class="nav navbar-nav">
@@ -38,14 +39,12 @@
 							<li><a href="{{AppSubURL}}/user/login">Login</a></li>
 						{{else}}
 							<li class="dropdown">
-								<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{.SignedUserName}} <span class="caret"></span></a>
+								<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{.SignedDisplayName}} <span class="caret"></span></a>
 								<ul class="dropdown-menu">
 									<li><a href="#">View Profile</a></li>
 									<li role="separator" class="divider"></li>
 									<li>
-										<form method="post" action="{{AppSubURL}}/user/logout">
-											<button type="submit" class="btn btn-link">Logout</button>
-										</form>
+										<a href="{{AppSubURL}}/user/logout">Logout</a>
 									</li>
 								</ul>
 							</li>
@@ -55,4 +54,3 @@
 			</div>
 		</nav>
 		<div class="container">
-			
