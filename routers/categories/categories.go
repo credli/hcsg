@@ -12,7 +12,7 @@ const (
 	tmplCategoriesList base.TplName = "categories/list"
 )
 
-type CategoryCreateStruct struct {
+type CategoryCreateForm struct {
 	Name     string `form:"name" binding:"Required"`
 	ParentID string `form:"parentId"`
 	Order    int    `form:"order"`
@@ -23,6 +23,8 @@ type CategoryCreateStruct struct {
 }
 
 func List(ctx *middleware.Context) {
+	ctx.Data["PageIsCatalogs"] = true
+
 	catalogId := ctx.Params(":catalogId")
 	if len(catalogId) == 0 {
 		ctx.Redirect("/catalogs")
