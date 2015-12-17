@@ -61,6 +61,8 @@ func AutoSignIn(ctx *Context) (bool, error) {
 		return false, nil
 	}
 	succeeded = true
+
+	ctx.Session.Set("user", u)
 	ctx.Session.Set("uid", u.UserID)
 	ctx.Session.Set("uname", u.UserName)
 
