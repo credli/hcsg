@@ -19,6 +19,18 @@ func IsAPIPath(url string) bool {
 }
 
 func SignedInID(ctx *macaron.Context, sess session.Store) string {
+	uid := sess.Get("uid")
+	if id, ok := uid.(string); ok {
+		// FIXME: Why???
+		// if _, err := models.GetUser(id); err != nil {
+		// 	if !models.IsErrUserNotExist(err) {
+		// 		log.Printf("GetUser: %v", err)
+		// 	}
+		// 	return ""
+		// }
+		return id
+	}
+
 	if !models.Connected {
 		return ""
 	}
@@ -52,23 +64,15 @@ func SignedInID(ctx *macaron.Context, sess session.Store) string {
 		}
 	}
 
-	uid := sess.Get("uid")
-	if uid == nil {
-		return ""
-	}
-	if id, ok := uid.(string); ok {
-		if _, err := models.GetUser(id); err != nil {
-			if !models.IsErrUserNotExist(err) {
-				log.Printf("GetUser: %v", err)
-			}
-			return ""
-		}
-		return id
-	}
 	return ""
 }
 
 func SignedInUser(ctx *macaron.Context, sess session.Store) (*models.User, bool) {
+	user := sess.Get("user")
+	if u, ok := user.(*models.User); ok {
+		return u, true
+	}
+
 	if !models.Connected {
 		return nil, false
 	}

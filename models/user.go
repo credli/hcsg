@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"time"
@@ -44,6 +45,7 @@ func (u *User) ValidatePassword(passwd string) bool {
 
 func GetUser(userId string) (*User, error) {
 	log.Println("Getting user from database...")
+	debug.PrintStack()
 
 	db, err := GetDb()
 	if err != nil {
