@@ -24,6 +24,7 @@ import (
 	"github.com/credli/hcsg/models"
 	"github.com/credli/hcsg/routers"
 	"github.com/credli/hcsg/routers/catalogs"
+	"github.com/credli/hcsg/routers/categories"
 	"github.com/credli/hcsg/settings"
 	"github.com/credli/hcsg/template"
 )
@@ -106,8 +107,15 @@ func runWeb(ctx *cli.Context) {
 	})
 
 	m.Get("/catalogs", adminReq, catalogs.List)
-	m.Get("/catalogs/create", adminReq, catalogs.Create)
-	m.Post("/catalogs/create", adminReq, bindIgnErr(catalogs.CatalogCreateForm{}), catalogs.CreatePost)
+	m.Group("/catalogs", func() {
+		m.Get("/create", catalogs.Create)
+		m.Post("/create", bindIgnErr(catalogs.CatalogCreateForm{}), catalogs.CreatePost)
+
+		m.Get("/:catalogId", categories.List)
+	}, adminReq)
+
+	// m.Get("/catalogs/create", adminReq, catalogs.Create)
+	// m.Post("/catalogs/create", adminReq, bindIgnErr(catalogs.CatalogCreateForm{}), catalogs.CreatePost)
 
 	m.NotFound(routers.NotFound)
 

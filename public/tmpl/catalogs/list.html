@@ -26,7 +26,7 @@
 			<tbody>
 				{{range $catalog := .Catalogs}}
 					<tr>
-						<td>{{$catalog.Name}}</td>
+						<td><a href="{{AppSubURL}}/catalogs/{{$catalog.ID}}">{{$catalog.Name}}</a></td>
 						<td>{{$catalog.Version}}</td>
 						<td>{{DateFmtShort $catalog.AddedDate}}</td>
 						<td>
