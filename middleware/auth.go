@@ -38,6 +38,10 @@ func AutoSignIn(ctx *Context) (bool, error) {
 		}
 	}()
 
+	if ctx.Session.Get("uid") != nil {
+		return true, nil
+	}
+
 	u, err := models.GetUserByName(uname)
 	if err != nil {
 		if !models.IsErrUserNotExist(err) {
@@ -56,11 +60,13 @@ func AutoSignIn(ctx *Context) (bool, error) {
 	if hash != u.UserName {
 		return false, nil
 	}
-
 	succeeded = true
+
+	ctx.Session.Set("user", u)
 	ctx.Session.Set("uid", u.UserID)
 	ctx.Session.Set("uname", u.UserName)
-	return true, nil
+
+	return succeeded, nil
 }
 
 func Toggle(options *ToggleOptions) macaron.Handler {

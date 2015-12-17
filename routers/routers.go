@@ -109,6 +109,7 @@ func LoginPost(ctx *middleware.Context, form auth.LoginForm) {
 		}
 	}
 
+	ctx.Session.Set("user", u)
 	ctx.Session.Set("uid", u.UserID)
 	ctx.Session.Set("uname", u.UserName)
 	if redirectTo, _ := url.QueryUnescape(ctx.GetCookie("redirect_to")); len(redirectTo) > 0 {
@@ -121,6 +122,7 @@ func LoginPost(ctx *middleware.Context, form auth.LoginForm) {
 }
 
 func Logout(ctx *middleware.Context) {
+	ctx.Session.Delete("user")
 	ctx.Session.Delete("uid")
 	ctx.Session.Delete("uname")
 	ctx.SetCookie(settings.CookieUserName, "", -1, settings.AppSubURL)
