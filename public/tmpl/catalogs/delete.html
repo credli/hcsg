@@ -1,0 +1,36 @@
+{{template "base/header" .}}
+
+<div class="row">
+	<div class="col-sm-12">
+		<ul class="breadcrumb">
+			<li><a href="/">Home</a></li>
+			<li><a href="/catalogs">Catalogs</a></li>
+			<li><a href="/catalogs/{{.Catalog.ID}}">{{.Catalog.Name}}</a></li>
+			<li>delete</li>
+		</ul>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-sm-12">
+		<h3>Confirm Delete</h3>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-sm-12">
+		<p> Are you sure you want to delete <strong>{{.Catalog.Name}}</strong>?</p>
+		<p><mark>Warning: You will not be able to undo this action.</mark></p>
+	</div>
+</div>
+
+<div class="row">
+	<form method="post">
+		<div class="col-sm-12">
+			<button type="submit" class="btn btn-danger">Yes, delete this catalog</button>
+			<a class="btn btn-default" href="/catalogs/{{.Catalog.ID}}/edit">Cancel</a>
+		</div>
+	</form>
+</div>
+
+{{template "base/footer" .}}

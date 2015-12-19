@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	reservedNames    = []string{"debug", "api", "erp", "catalog", "help", "template", "admin", "user", "new", "system"}
+	reservedNames    = []string{"debug", "api", "erp", "catalog", "help", "template", "admin", "user", "create", "new", "edit", "list", "delete", "system"}
 	reservedPatterns = []string{"*.git", "*.zip", "*.exe"}
 )
 

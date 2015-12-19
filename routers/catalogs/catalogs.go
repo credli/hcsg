@@ -11,9 +11,12 @@ import (
 const (
 	tmplCatalogList   base.TplName = "catalogs/list"
 	tmplCatalogCreate base.TplName = "catalogs/create"
+	tmplCatalogEdit   base.TplName = "catalogs/edit"
+	tmplCatalogDelete base.TplName = "catalogs/delete"
 )
 
-type CatalogCreateForm struct {
+type CatalogForm struct {
+	ID          string `form:"id"`
 	Name        string `form:"name" binding:"Required"`
 	Version     string `form:"version" binding:"Required"`
 	Description string `form:"description"`
@@ -39,7 +42,9 @@ func Create(ctx *middleware.Context) {
 	ctx.HTML(200, tmplCatalogCreate)
 }
 
-func CreatePost(ctx *middleware.Context, form CatalogCreateForm) {
+func CreatePost(ctx *middleware.Context, form CatalogForm) {
+	ctx.Data["PageIsCatalogs"] = true
+
 	if ctx.HasError() {
 		ctx.RenderWithErr("Something is wrong, check your entry then try again", tmplCatalogCreate, form)
 		return
@@ -64,5 +69,124 @@ func CreatePost(ctx *middleware.Context, form CatalogCreateForm) {
 		return
 	}
 
+	ctx.Flash.Success(fmt.Sprintf("Catalog %s was created", c.Name))
+	ctx.Redirect("/catalogs", 302)
+}
+
+func Edit(ctx *middleware.Context) {
+	ctx.Data["PageIsCatalogs"] = true
+
+	id := ctx.Params(":catalogId")
+	catalog, err := models.GetCatalogByID(id)
+	if err != nil {
+		ctx.Handle(500, "GetCatalogByID", err)
+		return
+	}
+	ctx.Data["Catalog"] = catalog
+
+	ctx.HTML(200, tmplCatalogEdit)
+}
+
+func EditPost(ctx *middleware.Context, form CatalogForm) {
+	ctx.Data["PageIsCatalogs"] = true
+
+	if ctx.HasError() {
+		ctx.RenderWithErr("Something is wrong, check your entry then try again", tmplCatalogEdit, form)
+		return
+	}
+
+	if len(form.ID) == 0 {
+		ctx.Handle(500, "form.ID", fmt.Errorf("Something went wrong, please try editing it again."))
+		return
+	}
+
+	c := &models.Catalog{
+		ID:          form.ID,
+		Name:        form.Name,
+		Version:     form.Version,
+		Description: form.Description,
+		Printable:   form.Printable,
+		Enabled:     form.Enabled,
+	}
+	err := models.UpdateCatalog(c)
+	if err != nil {
+		ctx.Handle(500, "UpdateCatalog", err)
+		return
+	}
+
+	ctx.Flash.Success(fmt.Sprintf("Changes to catalog %s were saved", c.Name))
+	ctx.Redirect(fmt.Sprintf("/catalogs/%s", c.ID), 302)
+}
+
+func DisablePost(ctx *middleware.Context) {
+	catalogId := ctx.Params(":catalogId")
+	if len(catalogId) == 0 {
+		ctx.Handle(500, "catalogId", fmt.Errorf("catalogId is empty"))
+		return
+	}
+
+	err := models.DisableCatalog(catalogId)
+	if err != nil {
+		ctx.Handle(500, "EnableCatalog", err)
+		return
+	}
+
+	ctx.Redirect("/catalogs", 302)
+}
+
+func EnablePost(ctx *middleware.Context) {
+	catalogId := ctx.Params(":catalogId")
+	if len(catalogId) == 0 {
+		ctx.Handle(500, "catalogId", fmt.Errorf("catalogId is empty"))
+		return
+	}
+
+	err := models.EnableCatalog(catalogId)
+	if err != nil {
+		ctx.Handle(500, "EnableCatalog", err)
+		return
+	}
+
+	ctx.Redirect("/catalogs", 302)
+}
+
+func Delete(ctx *middleware.Context) {
+	catalogId := ctx.Params(":catalogId")
+	if len(catalogId) == 0 {
+		ctx.Handle(500, "catalogId", fmt.Errorf("catalogId is empty"))
+		return
+	}
+
+	c, err := models.GetCatalogByID(catalogId)
+	if err != nil {
+		ctx.Handle(500, "GetCatalogByID", err)
+		return
+	}
+
+	ctx.Data["Catalog"] = c
+	ctx.HTML(200, tmplCatalogDelete)
+}
+
+func DeletePost(ctx *middleware.Context) {
+	catalogId := ctx.Params(":catalogId")
+	if len(catalogId) == 0 {
+		ctx.Handle(500, "catalogId", fmt.Errorf("catalogId is empty"))
+		return
+	}
+
+	c, err := models.GetCatalogByID(catalogId)
+	if err != nil {
+		ctx.Handle(500, "GetCatalogByID", err)
+		return
+	}
+	name := c.Name
+
+	err = models.DeleteCatalog(catalogId)
+	if err != nil {
+		ctx.Handle(500, "DeleteCatalog", err)
+		return
+	}
+
+	ctx.Flash.Error(fmt.Sprintf("Catalog %s was deleted", name))
 	ctx.Redirect("/catalogs", 302)
 }

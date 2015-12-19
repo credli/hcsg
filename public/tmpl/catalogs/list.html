@@ -1,6 +1,15 @@
 {{template "base/header" .}}
 
 <div class="row">
+	<div class="col-sm-12">
+		<ul class="breadcrumb">
+			<li><a href="/">Home</a></li>
+			<li>Catalogs</li>
+		</ul>
+	</div>
+</div>
+
+<div class="row">
 	<div class="col-md-12">
 		<h2>Catalogs<a href="{{AppSubURL}}/catalogs/create" class="btn btn-primary pull-right">Create New</a></h2>
 	</div>
@@ -31,13 +40,11 @@
 						<td>{{DateFmtShort $catalog.AddedDate}}</td>
 						<td>
 							{{if $catalog.Enabled}}
-								<form method="post" action="/catalogs/disable">
-									<input type="hidden" name="ID" value="{{$catalog.ID}}">
+								<form method="post" action="/catalogs/{{$catalog.ID}}/disable">
 									<button type="submit" class="btn btn-danger btn-sm pull-right">Disable</button>
 								</form>
 							{{else}}
-								<form method="post" action="/catalogs/disable">
-									<input type="hidden" name="ID" value="{{$catalog.ID}}">
+								<form method="post" action="/catalogs/{{$catalog.ID}}/enable">
 									<button type="submit" class="btn btn-success btn-sm pull-right">Enable</button>
 								</form>
 							{{end}}

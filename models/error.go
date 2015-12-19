@@ -6,7 +6,8 @@ import (
 )
 
 var (
-	ErrNameEmpty = errors.New("Name provided is empty")
+	ErrNameEmpty          = errors.New("Name provided is empty")
+	ErrEntityNotPersisted = errors.New("Entity is not yet persisted")
 )
 
 type ErrNameReserved struct {

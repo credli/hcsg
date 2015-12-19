@@ -1,5 +1,21 @@
 {{template "base/header" .}}
 
-<h1>{{.Catalog.Name}}</h1>
+<div class="row">
+	<div class="col-sm-12">
+		<ul class="breadcrumb">
+			<li><a href="/">Home</a></li>
+			<li><a href="/catalogs">Catalogs</a></li>
+			<li>{{.Catalog.Name}}</li>
+		</ul>
+	</div>
+</div>
+
+{{template "base/alert" .}}
+
+<div class="row">
+	<div class="col-sm-12">
+		<h1>{{.Catalog.Name}} <a href="{{AppSubURL}}/catalogs/{{.Catalog.ID}}/edit" class="btn btn-default btn-xs">Edit</a><a href="#" class="btn btn-success pull-right">Add Category</a></h1>
+	</div>
+</div>
 
 {{template "base/footer" .}}

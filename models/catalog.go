@@ -117,7 +117,62 @@ func CreateCatalog(c *Catalog, u *User) (err error) {
 	c.AddedDate = time.Now()
 
 	db, err := GetDb()
+	if err != nil {
+		return err
+	}
 	_, err = db.Exec(`INSERT INTO Catalogs (ID, AddedBy, AddedDate, Name, Version, Description, Printable, Enabled)
 						VALUES (?, ?, ?, ?, ?, ?, ?, ?);`, c.ID, c.AddedBy, c.AddedDate, c.Name, c.Version, c.Description, c.Printable, c.Enabled)
+	return err
+}
+
+func UpdateCatalog(c *Catalog) (err error) {
+	if err = IsUsableName(c.Name); err != nil {
+		return err
+	}
+
+	if len(c.ID) == 0 {
+		return ErrEntityNotPersisted
+	}
+
+	db, err := GetDb()
+	if err != nil {
+		return err
+	}
+	_, err = db.Exec(`UPDATE Catalogs SET Name = ?, Version = ?, Description = ?, Printable = ?, Enabled = ? WHERE ID = ?;`,
+		c.Name, c.Version, c.Description, c.Printable, c.Enabled, c.ID)
+	return err
+}
+
+func EnableCatalog(id string) error {
+	return toggleCatalogEnabled(id, true)
+}
+
+func DisableCatalog(id string) error {
+	return toggleCatalogEnabled(id, false)
+}
+
+func toggleCatalogEnabled(id string, enabled bool) (err error) {
+	if len(id) == 0 {
+		return ErrEntityNotPersisted
+	}
+
+	db, err := GetDb()
+	if err != nil {
+		return err
+	}
+	_, err = db.Exec(`UPDATE Catalogs SET Enabled = ? WHERE ID = ?;`, enabled, id)
+	return err
+}
+
+func DeleteCatalog(id string) error {
+	if len(id) == 0 {
+		return ErrEntityNotPersisted
+	}
+
+	db, err := GetDb()
+	if err != nil {
+		return err
+	}
+	_, err = db.Exec(`DELETE FROM Catalogs WHERE ID = ?;`, id)
 	return err
 }

@@ -5,45 +5,48 @@
 		<ul class="breadcrumb">
 			<li><a href="/">Home</a></li>
 			<li><a href="/catalogs">Catalogs</a></li>
-			<li>new</li>
+			<li><a href="/catalogs/{{.Catalog.ID}}">{{.Catalog.Name}}</a></li>
+			<li>edit</li>
 		</ul>
 	</div>
 </div>
 
 <div class="row">
 	<div class="col-sm-offset-2 col-sm-10">
-		<h3>New Catalog</h3>
+		<h3>Edit Catalog</h3>
 	</div>
 </div>
+
+{{template "base/alert" .}}
 
 <div class="row">
 	<div class="col-sm-12">
 		<form data-toggle="validator" class="form-horizontal" method="post" role="form">
+			<input type="hidden" name="id" value="{{.Catalog.ID}}">
 			<div class="form-group">
 				<label for="catalogName" class="col-sm-2 control-label">Catalog Name</label>
 				<div class="col-sm-10">
-					<input type="text" class="form-control" id="name" name="name" placeholder="Catalog Name" maxlength="100" required>
-					<span class="help-block">A meaningful name for your catalog, this will appear in the Marketing module</span>
+					<input type="text" class="form-control" id="name" name="name" value="{{.Catalog.Name}}"readonly>
 				</div>
 			</div>
 			<div class="form-group">
 				<label for="version" class="col-sm-2 control-label">Version</label>
 				<div class="col-sm-10">
-					<input type="text" class="form-control" id="version" name="version" placeholder="Version" pattern="^(\d+\.)?(\d+\.)?(\*|\d+)$" maxlength="10" required>
+					<input type="text" class="form-control" id="version" name="version" placeholder="Version" value="{{.Catalog.Version}}" pattern="^(\d+\.)?(\d+\.)?(\*|\d+)$" maxlength="10" required>
 					<span class="help-block">A starting version for this catalog (Example 1, 1.0 or 1.0.0-beta) Spaces are not allowed</span>
 				</div>
 			</div>
 			<div class="form-group">
 				<label for="description" class="col-sm-2 control-label">Description</label>
 				<div class="col-sm-10">
-					<textarea class="form-control" id="description" name="description" placeholder="Description" required></textarea>
+					<textarea class="form-control" id="description" name="description" placeholder="Description" required>{{.Catalog.Description}}</textarea>
 				</div>
 			</div>
 			<div class="form-group">
 				<div class="col-sm-offset-2 col-sm-10">
 					<div class="checkbox">
 						<label>
-							<input type="checkbox" name="printable"> Printable
+							<input type="checkbox" name="printable"{{if .Catalog.Printable}} checked="checked"{{end}}> Printable
 						</label>
 					</div>
 					<span class="help-block">Allow printing and exporting. Restricts category depth to 2 nodes</span>
@@ -53,7 +56,7 @@
 				<div class="col-sm-offset-2 col-sm-10">
 					<div class="checkbox">
 						<label>
-							<input type="checkbox" name="enabled"> Enabled
+							<input type="checkbox" name="enabled"{{if .Catalog.Enabled}} checked="checked"{{end}}> Enabled
 						</label>
 					</div>
 					<span class="help-block">Make this catalog immediately visible to Marketing users</span>
@@ -61,7 +64,8 @@
 			</div>
 			<div class="form-group">
 				<div class="col-sm-offset-2 col-sm-10">
-					<button type="submit" class="btn btn-success">Create Catalog</button> <a href="{{AppSubURL}}/catalogs" class="btn btn-default">Cancel</a>
+					<button type="submit" class="btn btn-success">Save Catalog</button> <a href="{{AppSubURL}}/catalogs/{{.Catalog.ID}}" class="btn btn-default">Cancel</a>
+					<a class="btn btn-danger pull-right" href="{{AppSubURL}}/catalogs/{{.Catalog.ID}}/delete">Delete this Catalog</a>
 				</div>
 			</div>
 		</form>

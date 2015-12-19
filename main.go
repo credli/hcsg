@@ -65,6 +65,45 @@ func main() {
 	app.Run(os.Args)
 }
 
+func newMacaron() *macaron.Macaron {
+	m := macaron.New()
+	if !settings.DisableRouterLog {
+		m.Use(macaron.Logger())
+	}
+	m.Use(macaron.Recovery())
+	m.Use(macaron.Static(settings.StaticRootPath, macaron.StaticOptions{
+		Prefix:      "public",
+		SkipLogging: true,
+		// // Expires defines which user-defined function to use for producing a HTTP Expires Header. Default is nil.
+		// // https://developers.google.com/speed/docs/insights/LeverageBrowserCaching
+		// Expires: func() string {
+		// 	return time.Now().Add(24 * 60 * time.Minute).UTC().Format("Mon, 02 Jan 2006 15:04:05 GMT")
+		// },
+	}))
+	m.Use(macaron.Renderer(macaron.RenderOptions{
+		Directory:  path.Join(settings.StaticRootPath, "tmpl"),
+		Funcs:      []gotmpl.FuncMap{template.Funcs},
+		IndentJSON: macaron.Env != macaron.PROD,
+	}))
+	m.Use(session.Sessioner(settings.SessionConfig))
+	m.Use(csrf.Csrfer(csrf.Options{
+		Secret:     settings.SecretKey,
+		SetCookie:  true,
+		Header:     "X-Csrf-Token",
+		CookiePath: settings.AppSubURL,
+	}))
+	m.Use(toolbox.Toolboxer(m, toolbox.Options{
+		HealthCheckFuncs: []*toolbox.HealthCheckFuncDesc{
+			&toolbox.HealthCheckFuncDesc{
+				Desc: "Database connection",
+				Func: models.Ping,
+			},
+		},
+	}))
+	m.Use(middleware.Contexter())
+	return m
+}
+
 func runWeb(ctx *cli.Context) {
 	routers.GlobalInit()
 
@@ -109,9 +148,14 @@ func runWeb(ctx *cli.Context) {
 	m.Get("/catalogs", adminReq, catalogs.List)
 	m.Group("/catalogs", func() {
 		m.Get("/create", catalogs.Create)
-		m.Post("/create", bindIgnErr(catalogs.CatalogCreateForm{}), catalogs.CreatePost)
-
+		m.Post("/create", bindIgnErr(catalogs.CatalogForm{}), catalogs.CreatePost)
 		m.Get("/:catalogId", categories.List)
+		m.Get("/:catalogId/edit", catalogs.Edit)
+		m.Post("/:catalogId/edit", bindIgnErr(catalogs.CatalogForm{}), catalogs.EditPost)
+		m.Post("/:catalogId/enable", catalogs.EnablePost)
+		m.Post("/:catalogId/disable", catalogs.DisablePost)
+		m.Get("/:catalogId/delete", catalogs.Delete)
+		m.Post("/:catalogId/delete", catalogs.DeletePost)
 	}, adminReq)
 
 	// m.Get("/catalogs/create", adminReq, catalogs.Create)
@@ -140,43 +184,4 @@ func runWeb(ctx *cli.Context) {
 	if err != nil {
 		log.Panicf("Failed to start server: %v", err)
 	}
-}
-
-func newMacaron() *macaron.Macaron {
-	m := macaron.New()
-	if !settings.DisableRouterLog {
-		m.Use(macaron.Logger())
-	}
-	m.Use(macaron.Recovery())
-	m.Use(macaron.Static(settings.StaticRootPath, macaron.StaticOptions{
-		Prefix:      "public",
-		SkipLogging: true,
-		// // Expires defines which user-defined function to use for producing a HTTP Expires Header. Default is nil.
-		// // https://developers.google.com/speed/docs/insights/LeverageBrowserCaching
-		// Expires: func() string {
-		// 	return time.Now().Add(24 * 60 * time.Minute).UTC().Format("Mon, 02 Jan 2006 15:04:05 GMT")
-		// },
-	}))
-	m.Use(macaron.Renderer(macaron.RenderOptions{
-		Directory:  path.Join(settings.StaticRootPath, "tmpl"),
-		Funcs:      []gotmpl.FuncMap{template.Funcs},
-		IndentJSON: macaron.Env != macaron.PROD,
-	}))
-	m.Use(session.Sessioner(settings.SessionConfig))
-	m.Use(csrf.Csrfer(csrf.Options{
-		Secret:     settings.SecretKey,
-		SetCookie:  true,
-		Header:     "X-Csrf-Token",
-		CookiePath: settings.AppSubURL,
-	}))
-	m.Use(toolbox.Toolboxer(m, toolbox.Options{
-		HealthCheckFuncs: []*toolbox.HealthCheckFuncDesc{
-			&toolbox.HealthCheckFuncDesc{
-				Desc: "Database connection",
-				Func: models.Ping,
-			},
-		},
-	}))
-	m.Use(middleware.Contexter())
-	return m
 }
