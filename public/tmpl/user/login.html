@@ -6,11 +6,11 @@
 		{{template "base/alert" .}}
 		<form method="post">
 			<h3>Login to HCSG</small></h3>
-			<div class="form-group">
+			<div class="form-group {{if .Err_Username}}error{{end}}">
 				<label for="username" class="control-label">Username</label>
-				<input type="text" class="form-control" id="username" name="username" placeholder="Username">
+				<input type="text" class="form-control" id="username" name="username" placeholder="Username" value="{{.username}}" autofocus>
 			</div>
-			<div class="form-group">
+			<div class="form-group {{if .Err_Password}}error{{end}}">
 				<label for="password" class="control-label">Password</label>
 				<input type="password" class="form-control" id="password" name="password" placeholder="Password">
 			</div>
@@ -23,6 +23,6 @@
 		</form>
 	</div>
 	<div class="col-md-3 hidden-xs"></div>
-</div>	
+</div>
 
 {{template "base/footer" .}}

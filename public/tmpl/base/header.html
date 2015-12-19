@@ -3,11 +3,13 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+	<link rel="apple-touch-icon" href="/public/img/apple-touch-icon.png">
+	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0,user-scalable=no">
 	<link rel="stylesheet" href="{{AppSubURL}}/public/bower_components/bootstrap/dist/css/bootstrap.min.css" />
 	<link rel="stylesheet" href="{{AppSubURL}}/public/bower_components/bootstrap/dist/css/bootstrap-theme.min.css" />
 	<link rel="stylesheet" href="{{AppSubURL}}/public/css/style.css" />
-	<title>{{if .Title}}{{.Title}} - {{end}}HC Source Guide</title>
+	<title>{{if .Title}}{{.Title}} - {{end}}Source Guide</title>
 </head>
 <body>
 		<nav class="navbar navbar-inverse navbar-static-top">
@@ -41,8 +43,6 @@
 							<li class="dropdown">
 								<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{.SignedDisplayName}} <span class="caret"></span></a>
 								<ul class="dropdown-menu">
-									<li><a href="#">View Profile</a></li>
-									<li role="separator" class="divider"></li>
 									<li>
 										<a href="{{AppSubURL}}/user/logout">Logout</a>
 									</li>

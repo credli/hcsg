@@ -183,16 +183,20 @@ func getProfileProperty(key, propertyNames, propertyValues string) (string, erro
 	}
 
 	//Takes care of finding S
-	dataType := propertyNames[keyIndex+len(key)+1:]
+	var tally = keyIndex + len(key) + 1
+
+	dataType := propertyNames[tally:]
 	dataType = dataType[:strings.Index(dataType, ":")]
 	if dataType != "S" {
 		return "", fmt.Errorf("Property '%s' is not of type string", key)
 	}
 
-	pos1 := propertyNames[keyIndex+len(key)+1+len(dataType)+1:]
+	tally = tally + len(dataType) + 1
+	pos1 := propertyNames[tally:]
 	pos1 = pos1[:strings.Index(pos1, ":")]
 
-	pos2 := propertyNames[keyIndex+len(key)+1+len(dataType)+1+len(pos1)+1:]
+	tally = tally + len(pos1) + 1
+	pos2 := propertyNames[tally:]
 	pos2 = pos2[:strings.Index(pos2, ":")]
 
 	startPos, _ := strconv.ParseInt(pos1, 0, 64)
