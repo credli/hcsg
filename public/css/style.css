@@ -1,10 +1,25 @@
 html {
 	position: relative;
 	min-height: 100%;
+	/* fixes and issue causing window to zoom out when dragging category items on mobile */
+	/* http://stackoverflow.com/questions/5543495/mobile-safari-viewport-preventing-horizontal-scrolling */
+	overflow-x:hidden;
 }
+
 body {
-	/* Margin bottom by footer height */
-	margin-bottom: 60px;
+	/* Margin bottom by footer height + 20px extra margin */
+	margin-bottom: 80px;
+}
+
+.pull-right-lg {
+	margin-top:5px;
+	display: block;
+}
+
+@media (min-width: 768px) {
+    .pull-right-lg {
+        float: right;
+    }
 }
 
 .container .text-muted {
@@ -32,4 +47,71 @@ body {
 
 .error-actions btn {
 	margin-right:10px;
+}
+
+/* jquery-sortable helper classes */
+body.dragging, body.dragging * {
+	cursor: move !important;
+}
+
+.dragged {
+	position: absolute;
+	opacity: 0.5;
+	z-index: 2000;
+}
+
+ol.categories {
+	margin:0;
+	padding:0;
+}
+
+ol.categories li {
+	display: block;
+	margin: 0px;
+}
+
+ol.categories li > div {
+	color: #fff;
+	padding: 10px;
+	background: #333;
+	border: 1px solid #ccc;
+}
+
+ol.categories input[type=text] {
+	background-color: #333;
+	border: 0;
+}
+
+ol.categories input[type=text]:focus {
+	outline: 0;
+}
+
+ol.categories li button {
+	margin-left: 5px;
+}
+
+ol.categories li i.icon-move {
+	padding: 5px;
+}
+
+ol.categories li.placeholder {
+	position: relative;
+	margin: 5px;
+	padding: 5px;
+	border: 1px dashed #bbb;
+	background: #eee;
+	height: 35px;
+}
+
+ol.categories li.placeholder:before {
+	position: absolute;
+	content: "";
+	width: 0;
+	height: 0;
+	margin-top: 20px;
+	left: -10px;
+	top: -10px;
+	border: 5px solid transparent;
+	border-left-color: red;
+	border-right: none;
 }

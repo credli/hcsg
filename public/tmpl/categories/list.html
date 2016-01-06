@@ -14,7 +14,14 @@
 
 <div class="row">
 	<div class="col-sm-12">
-		<h1>{{.Catalog.Name}} <a href="{{AppSubURL}}/catalogs/{{.Catalog.ID}}/edit" class="btn btn-default btn-xs">Edit</a><a href="#" class="btn btn-success pull-right">Add Category</a></h1>
+		<h2>{{.Catalog.Name}} <a href="{{AppSubURL}}/catalogs/{{.Catalog.ID}}/edit" class="btn btn-default btn-xs">Edit</a><a id="add-root-category" href="#" class="btn btn-success pull-right-lg">Add Category</a></h2>
+	</div>
+</div>
+<div class="row">
+	<div class="col-sm-12">
+		<ol class="categories">
+
+		</ol>
 	</div>
 </div>
 
